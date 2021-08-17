@@ -1,0 +1,24 @@
+@forward "./fonts";
+@forward "./colors";
+
+*, *::after, *::before{
+    box-sizing: border-box;
+}
+
+html, body{
+    margin: 0;
+    padding: 0;
+}
+
+body{
+    min-height: 100vh;
+}
+
+img {
+    vertical-align: top;
+}
+
+#app {
+    min-height: 100vh;
+    font-family: 'Roboto', sans-serif;
+}

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="469.5940246582031" height="602.3328857421875" viewBox="0.0 0.0 469.5940246582031 602.3328857421875">
+  <g>
+    <defs>
+      <path id="s-Path_14-e4296" d="M0.0 0.0 L469.5940312408928 0.0 L425.746395793701 403.4740704264845 C425.746395793701 403.4740704264845 408.0545883264859 587.5061213271159 393.214279171591 598.2438311163844 C378.3739700166961 608.9815409056528 270.1580119488269 595.1759140337363 270.1580119488269 595.1759140337363 L153.61333426481588 578.0341967812519 C153.61333426481588 578.0341967812519 86.92269873583213 567.009368046947 68.90217687983558 546.1444796969241 C50.88164423251935 525.282634172377 26.50066190253042 464.83854454309795 26.50066190253042 464.83854454309795 L0.0 403.4740704264845 L0.0 0.0 Z "></path>
+      <filter id="s-Path_14-e4296-shadow" filterUnits="userSpaceOnUse" x="-5.0" y="-5.0" width="481.7153450017628" height="614.4542060857472">
+        <feOffset dx="2.1213203435596424" dy="2.121320343559643" input="SourceAlpha"></feOffset>
+        <feGaussianBlur result="blur" stdDeviation="2.5"></feGaussianBlur>
+        <feFlood flood-color="#999999" flood-opacity="1.0"></feFlood>
+        <feComposite operator="in" in2="blur"></feComposite>
+        <feComposite in="SourceGraphic"></feComposite>
+      </filter>
+      <path id="s-Path_16-e4296" d="M0.0 0.0 L446.4358535240487 0.0 L393.21427917159065 374.5067698062536 C393.21427917159065 374.5067698062536 370.5849830626308 546.8593096202037 356.81681310061225 556.8269505006349 C343.04866472123314 566.794591381066 284.1933688219627 556.8269505006349 284.1933688219627 556.8269505006349 L129.42200883639842 536.2882460056746 C129.42200883639842 536.2882460056746 89.44890609808047 532.0017684751144 72.73107458426989 512.6339970718105 C56.01324307045929 493.2693153066819 24.584943667606268 431.4657241674735 24.584943667606268 431.4657241674735 L0.0 374.5067698062536 L0.0 0.0 Z "></path>
+      <filter id="s-Path_16-e4296-shadow" filterUnits="userSpaceOnUse" x="-4.0" y="-4.0" width="477.5940246582031" height="614.3328857421875">
+        <feOffset dx="-2.4492935982947064E-16" dy="4.0" input="SourceAlpha"></feOffset>
+        <feGaussianBlur result="blur" stdDeviation="2.0"></feGaussianBlur>
+        <feFlood flood-color="#000000" flood-opacity="0.25"></feFlood>
+        <feComposite operator="in" in2="blur"></feComposite>
+        <feComposite in="SourceGraphic"></feComposite>
+      </filter>
+    </defs>
+    <g>
+      <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#s-Path_14-e4296" fill="#FDC82F" fill-opacity="1.0" filter="url(#s-Path_14-e4296-shadow)"></use>
+    </g>
+    <g>
+      <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#s-Path_16-e4296" fill="#008542" fill-opacity="1.0" filter="url(#s-Path_16-e4296-shadow)"></use>
+    </g>
+  </g>
+</svg>
