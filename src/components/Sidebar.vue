@@ -34,12 +34,14 @@
                     Tags - Intérprete
                 </span>
             </li>
-            <li>
-                <span>
-                    <i class='bx bx-spreadsheet'></i>
-                    Tags - RTO-Live
-                </span>
-            </li>
+            <router-link to="/tagrto">
+                <li>
+                    <span>
+                        <i class='bx bx-spreadsheet'></i>
+                        Tags - RTO-Live
+                    </span>
+                </li>
+            </router-link>
         </ul>
     </div>
 </template>

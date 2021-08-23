@@ -1,6 +1,5 @@
 <template>
     <div class="layout__main__home">
-
         <div class="box description">
             <h1>Sobre o sistema</h1>
             <span>lorem Lorem ipsum dolor sit amet consectetur adipisicing elit. Nisi asperiores assumenda eligendi harum tenetur veritatis illum molestiae animi exercitationem, dolore perferendis voluptas alias quaerat similique quas nostrum officia ipsum iste. Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laborum, obcaecati aperiam. Optio, fuga voluptatum, aliquam velit culpa asperiores consequatur neque nesciunt sit sed repudiandae. Explicabo sed dignissimos laborum dicta quia?</span>
@@ -65,7 +64,7 @@ export default {
                 &::after{
                     position: absolute;
                     content: ' ';
-                    width: 50px;
+                    width: 30px;
                     height: 10px;
                     background: #fdc82e;
                     display: block;

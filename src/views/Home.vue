@@ -4,7 +4,7 @@
     <Sidebar />
     
     <section class="layout__main">
-      <router-view/>
+      <router-view @openModal="openModal" @closeModal="closeModal"/>
     </section>
   
     <Footer />
@@ -22,7 +22,8 @@ export default {
   name: 'Home',
   components: {
     Header, Sidebar, Footer
-  }
+  },
+  props: ['openModal', 'closeModal']
 }
 </script>
 

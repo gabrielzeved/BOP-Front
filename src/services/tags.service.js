@@ -1,15 +1,17 @@
 import axios from 'axios'
 
-class UserService{
+class TagsService{
     
     constructor(apiURI){
         this.apiURI = apiURI;
         this.users = []
-        this.endPoint = '/auth'
+        this.endPoint = '/associacoes'
     }
 
     all(){
-        return axios.get(this.apiURI + this.endPoint + '/user');
+        return axios.get(this.apiURI + this.endPoint + '/')
+        .then(response => response.data.objetos)
+        .catch(error => console.error("Error on tags service: " + error));
     }
 
     delete(id){
@@ -30,4 +32,4 @@ class UserService{
 
 }
 
-export default UserService;
+export default TagsService;

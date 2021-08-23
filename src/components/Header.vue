@@ -19,8 +19,6 @@ export default {
 
 <style lang="scss" scoped>
     .layout__header{
-        display: flex;
-        flex-direction: column;
         background-color: white;
         justify-content: space-between;
         position:relative;
