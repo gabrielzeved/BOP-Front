@@ -132,7 +132,6 @@ export default {
                 nome: tag.nome,
                 id: tag.id,
                 associado: this.tags_default.find(tag_default => Number(tag_default.id) == Number(tag.id))
-                //empresa: companiesService.find(company => Number(company.id) == Number(tag.empresa_id))
             }
         },
         changeToEdition: function(index){

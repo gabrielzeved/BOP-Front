@@ -14,7 +14,7 @@
             <div class="users__list__searchbar">
                 <div class="search">
                     <i class='bx bx-search'></i>
-                    <input type="text" />
+                    <input v-model="searchInputValue" type="text" />
                 </div>
                 <button>Pesquisar</button>
             </div>
@@ -49,14 +49,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(user, index) in users" :key="index">
+                    <tr v-for="user in filteredUsers" :key="user.id">
                         <td> 
                             <div class="icon"><i class='bx bxs-user'></i></div> 
                             {{ user.username }}
                         </td>
                         <td align="center">{{ user.empresa ? user.empresa.nome : "Nenhuma" }}</td>
                         <td align="center">{{ user.role ? user.role : "Nenhum" }}</td>
-                        <td align="center"><i class='bx bx-edit' v-on:click="changeToEdition(index)"></i></td>
+                        <td align="center"><i class='bx bx-edit' v-on:click="changeToEdition(user.id)"></i></td>
                         <td align="center" v-on:click="deleteUser(user)" ><i class='bx bx-no-entry'></i></td>
                         <td align="center"><input type="checkbox"></td>
                     </tr>
@@ -70,7 +70,7 @@
                 <h1>Entre com as informações necessárias para realizar o cadastro</h1>
             
                 <label for="users-name">Nome</label>
-                <input type="text" id="users-name" name="username" v-model="searchInputValue" />
+                <input type="text" id="users-name" name="username" />
             
                 <label for="users-password">Senha</label>
                 <input type="password" id="users-password" name="password" />
@@ -107,7 +107,7 @@
 
                 <label for="users-role">Cargo</label>
                 
-                <select id="users-role" name="role">
+                <select id="users-role" name="id_role">
                     <option value="" disabled selected>Select your option</option>
                     <option value="1">Administrador</option>
                     <option value="2">Usuário</option>
@@ -115,12 +115,12 @@
 
                 <label for="users-company">Empresa</label>
 
-                <select id="users-company" name="empresa">
+                <select id="users-company" name="id_empresa">
                     <option value="" disabled selected>Select your option</option>
                     <option v-for="(company, index) in companies" :key="index" :value="company.id">{{ company.nome }}</option>
                 </select>
 
-                <button>Atualizar</button>
+                <button v-on:click.stop.prevent="updateUser()">Atualizar</button>
 
             </form>
         </div>
@@ -151,7 +151,8 @@ export default {
             users: [],
             rawUsers: [],
             companies:[],
-            searchInputValue: ""
+            searchInputValue: "",
+            userEditing: -1
         }
     },
     mounted: function(){
@@ -176,19 +177,22 @@ export default {
     },
     methods: {
         LoadUserInformation: function(user){
-            
             return {
                 username: user.username,
                 id: user.id,
-                empresa: this.companies.find(company => Number(company.id) == Number(user.empresa_id) || Number(company.id) == Number(user.empresa)),
+                empresa: this.companies.find(company => company.id ==user.empresa_id || company.id ==user.id_empresa),
                 role: user.role == "1" ? 'Administrador' : "Usuário"
             }
         },
-        changeToEdition: function(index){
-            const user = this.users[index];
+        changeToEdition: function(id){
+            const user = this.users.find(user => user.id == id);
 
-            if(!user)
+            if(!user){
+                console.log("Usuario nao encontrado");
                 return;
+            }
+
+            this.userEditing = id;
 
             this.tabs = [
                 {name: 'Visualizar',element: document.getElementById('tab-value-0'), visible: true, callback: this.resetTabs},
@@ -199,7 +203,7 @@ export default {
             const form = document.getElementById(`form__2`);
 
             //FILLING VALUE IN FORM
-            form.elements['name'].value = user.name;
+            form.elements['username'].value = user.name;
             
             this.$nextTick(() => this.$refs.tab_select.activateTab(2));
         },
@@ -226,11 +230,23 @@ export default {
         
         registerUser: function(){
             const newUser = this.parseObjectFromForm();
-            console.log(newUser);
+
+            if(!newUser.username || !newUser.password){
+                console.error("Nome e Senha são obrigatórios");
+                return;
+            }
+
+            if(!newUser.id_role){
+                console.error("Cargo é obrigatório")
+                return;
+            }
+
             if(newUser.id_role == USER && !newUser.id_empresa){
                 console.error("Usuário necessita deeclarar uma empresa!");
                 return;
-            }
+            }   
+
+
 
             service.add(newUser)
             .then((response) => {
@@ -252,11 +268,53 @@ export default {
             });
         },
 
+        updateUser: function(){
+            const newUser = this.parseObjectFromForm();
+            console.log(newUser);
+
+            if(!newUser.username || !newUser.password){
+                console.error("Nome e Senha são obrigatórios");
+                return;
+            }
+
+            if(!newUser.id_role){
+                console.error("Cargo é obrigatório")
+                return;
+            }
+
+            if(newUser.id_role == USER && !newUser.id_empresa){
+                console.error("Usuário necessita deeclarar uma empresa!");
+                return;
+            }   
+
+            service.update(this.userEditing, newUser)
+            .then((response) => {
+                
+                const userDTO = this.LoadUserInformation(newUser);
+                userDTO.id = response.data.id;
+
+                this.openModal('Usuário editado com sucesso!', '2.png', 
+                    `
+                    <p>O usuário foi editado com as seguintes informações:</p>
+                    <p>Usuário: <b>${userDTO.username}</b></p>
+                    <p>Empresa: <b>${(userDTO.empresa && userDTO.empresa.nome) ?? "Nenhuma"}</b></p>
+                    <p>Cargo: <b>${userDTO.role}</b></p>
+                    `,
+                    null
+                );
+                this.users = this.users.filter( u => u.id != userDTO.id);
+
+                this.users = [...this.users, userDTO];
+
+                this.$refs.tab_select.activateTab(0);
+            });
+        },
+
         deleteUser: function(user){
 
-            this.openModal('Usuário deletado com sucesso!', '2.png', 
+            this.openModal('Deseja realmente deletar esse usuário?', '2.png', 
                 `
-                <p>O usuário com as seguintes informações foi deletado:</p>
+                <p>O usuário com as seguintes informações será deletado ao clicar em confirmar:</p>
                 <p>Usuário: <b>${user.username}</b></p>
                 <p>Empresa: <b>${(user.empresa && user.empresa.nome) ?? "Nenhuma"}</b></p>
                 <p>Cargo: <b>${user.role}</b></p>
@@ -283,6 +341,17 @@ export default {
             this.$emit('closeModal');
         }
     
+    },
+    computed:{
+        filteredUsers: function(){
+            return this.users.filter((user) => {
+                return (
+                    user.username
+                    .toLowerCase()
+                    .indexOf(this.searchInputValue.toLowerCase()) != -1
+                );
+            });
+        }
     }
 }
 </script>

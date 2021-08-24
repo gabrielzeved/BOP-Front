@@ -13,7 +13,7 @@
         :close="closeModal"
         :callback="modal.callback"
         />
-    
+    <Toast text="Concluido com Sucesso"/>
     <Home :openModal="openModal" :closeModal="closeModal" />
   </div>
 
@@ -22,9 +22,10 @@
 <script>
 import Home from './views/Home.vue';
 import Modal from './components/Modal';
+import Toast from './components/Toast';
 export default {
   components: {
-    Home, Modal
+    Home, Modal, Toast
   },
   data: function () {
     return {

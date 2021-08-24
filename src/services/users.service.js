@@ -17,7 +17,11 @@ class UserService{
     }    
 
     update(id, data){
-        return axios.put(this.apiURI + this.endPoint + '/update/' + id, data);
+        return axios.post(this.apiURI + this.endPoint + '/update/' + id, data, { 
+            headers: {
+                'Content-Type' : 'application/json'
+            }    
+        });
     }
 
     add(data){
