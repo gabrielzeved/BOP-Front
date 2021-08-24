@@ -80,6 +80,25 @@
 
             </form>
         </div>
+
+        <div id="tab-value-2" class="tags__form">
+            <form id="form__2">
+                <h1>Entre com as informações necessárias para editar associação no sistema</h1>
+
+                <label for="tags-name">Nome</label>
+                <input type="text" id="tags-name" name="name" />
+                
+                <label for="tags-options">Tag-Intérprete</label>
+
+                <select id="tags-options" name="tags">
+                    <option value="" disabled selected>Select your option</option>
+                    <option v-for="(tag, index) in tags_default" :key="index" :value="tag.id">{{ tag.descricao }}</option>
+                </select>
+
+                <button v-on:click.stop.prevent="">Concluir</button>
+
+            </form>
+        </div>
   </div>
 
 </template>
@@ -177,12 +196,11 @@ export default {
                 const userDTO = this.LoadUserInformation(newUser);
                 userDTO.id = response.data.id;
 
-                this.openModal('Usuário registrado com sucesso!', '2.png', 
+                this.openModal('Tag associada com sucesso!', '2.png', 
                     `
-                    <p>O usuário foi adicionado com as seguintes informações:</p>
-                    <p>Usuário: <b>${userDTO.username}</b></p>
-                    <p>Empresa: <b>${userDTO.empresa.nome}</b></p>
-                    <p>Cargo: <b>${userDTO.role}</b></p>
+                    <p>A Tag foi associada seguindo as informações:</p>
+                    <p>Tag RTO-LIVE: <b>${userDTO.username}</b></p>
+                    <p>Tag Intérprete: <b>${userDTO.empresa.nome}</b></p>
                     `
                 );
                 this.users = [...this.users, userDTO]
