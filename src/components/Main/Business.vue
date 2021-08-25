@@ -118,7 +118,8 @@ export default {
     },
     mounted: function(){
         this.resetTabs();
-        service.all().then(data =>this.companies = data);
+        service.all().then(response => response.data)
+        .then(data =>this.companies = data);
     },
     methods: {
         changeToEdition: function(id){
