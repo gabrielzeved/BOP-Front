@@ -4,7 +4,7 @@
 
         <div class="users__header">
             <img src="../../assets/1.png" />
-            <h1>Gerenciar Usuários</h1>
+            <h1 v-on:click="openToast('Heello World!!!')" >Gerenciar Usuários</h1>
         </div>
 
         <TabSelect :tabs="tabs" ref="tab_select"/>
@@ -55,7 +55,9 @@
                             {{ user.username }}
                         </td>
                         <td align="center">{{ user.empresa ? user.empresa.nome : "Nenhuma" }}</td>
-                        <td align="center">{{ user.role ? user.role : "Nenhum" }}</td>
+                        
+                        <td align="center">{{ user.role ? user.role[0].name : "Nenhum" }}</td>
+                        
                         <td align="center"><i class='bx bx-edit' v-on:click="changeToEdition(user.id)"></i></td>
                         <td align="center" v-on:click="deleteUser(user)" ><i class='bx bx-no-entry'></i></td>
                         <td align="center"><input type="checkbox"></td>
@@ -132,10 +134,10 @@
 <script>
 import TabSelect from '../TabSelect';
 import UserService from '../../services/users.service'
-import CompanyService from '../../services/company.service'
+import CompaniesService from '../../services/company.service'
 
 const service = new UserService("http://localhost:5001");
-const companyService = new CompanyService('http://localhost:5001');
+const companiesService = new CompaniesService("http://localhost:5001");
 
 //const filtersAvaiable = ['name', 'role', 'company'];
 
@@ -149,8 +151,7 @@ export default {
         return{
             tabs: [],
             users: [],
-            rawUsers: [],
-            companies:[],
+            companies: [],
             searchInputValue: "",
             userEditing: -1
         }
@@ -159,31 +160,18 @@ export default {
         this.resetTabs();
 
         service.all().then(response => response.data).then((users) => {
-            this.rawUsers = [...users]
-
-            //TODO: ADD ERROR CHECK
-            companyService.all().then(data => {
-                this.companies = [...data]
-
-                for(let user of this.rawUsers){                    
-                    this.users = [...this.users, this.LoadUserInformation(user)]
-                }
-            });
-
-
+            this.users = [...users]
         })
         .catch(error => console.error("Error on user service: " + error));
+
+        companiesService.all().then(response => response.data).then((data) => {
+            console.log(data);
+            this.companies = [...data]
+        })
+        .catch(error => console.error("Error on companies service: " + error));
         
     },
     methods: {
-        LoadUserInformation: function(user){
-            return {
-                username: user.username,
-                id: user.id,
-                empresa: this.companies.find(company => company.id ==user.empresa_id || company.id ==user.id_empresa),
-                role: user.role == "1" ? 'Administrador' : "Usuário"
-            }
-        },
         changeToEdition: function(id){
             const user = this.users.find(user => user.id == id);
 
@@ -203,7 +191,10 @@ export default {
             const form = document.getElementById(`form__2`);
 
             //FILLING VALUE IN FORM
-            form.elements['username'].value = user.name;
+            form.elements['username'].value = user.username;
+
+            if(user.role)
+                form.elements['id_role'].value = user.role.id;
             
             this.$nextTick(() => this.$refs.tab_select.activateTab(2));
         },
@@ -226,46 +217,43 @@ export default {
             return object;
         },
         
-        
-        
         registerUser: function(){
             const newUser = this.parseObjectFromForm();
 
             if(!newUser.username || !newUser.password){
-                console.error("Nome e Senha são obrigatórios");
+                this.openToast('Nome e Senha são obrigatórios', '#f44336', 'white')
                 return;
             }
 
             if(!newUser.id_role){
-                console.error("Cargo é obrigatório")
+                this.openToast('Cargo é obrigatório', '#f44336', 'white')
                 return;
             }
 
             if(newUser.id_role == USER && !newUser.id_empresa){
-                console.error("Usuário necessita deeclarar uma empresa!");
+                this.openToast('Usuário necessita declarar uma empresa!', '#f44336', 'white')
                 return;
             }   
 
-
-
             service.add(newUser)
-            .then((response) => {
-                
-                const userDTO = this.LoadUserInformation(newUser);
-                userDTO.id = response.data.id;
-
-                this.openModal('Usuário registrado com sucesso!', '2.png', 
-                    `
-                    <p>O usuário foi adicionado com as seguintes informações:</p>
-                    <p>Usuário: <b>${userDTO.username}</b></p>
-                    <p>Empresa: <b>${(userDTO.empresa && userDTO.empresa.nome) ?? "Nenhuma"}</b></p>
-                    <p>Cargo: <b>${userDTO.role}</b></p>
-                    `,
-                    null
-                );
-                this.users = [...this.users, userDTO]
-                this.$refs.tab_select.activateTab(0);
+            .then((response) => response.data)
+            .then(data => {
+                service.one(data.id).then(response => response.data)
+                .then(data => {
+                    this.openModal('Usuário registrado com sucesso!', '2.png', 
+                        `
+                        <p>O usuário foi adicionado com as seguintes informações:</p>
+                        <p>Usuário: <b>${data.username}</b></p>
+                        <p>Empresa: <b>${(data.empresa && data.empresa.nome) ?? "Nenhuma"}</b></p>
+                        <p>Cargo: <b>${data.role ? data.role[0].name : "Nenhum"}</b></p>
+                        `,
+                        null
+                    );
+                    this.users = [...this.users, data]
+                    this.$refs.tab_select.activateTab(0);
+                })
             });
+
         },
 
         updateUser: function(){
@@ -288,25 +276,27 @@ export default {
             }   
 
             service.update(this.userEditing, newUser)
-            .then((response) => {
-                
-                const userDTO = this.LoadUserInformation(newUser);
-                userDTO.id = response.data.id;
+            .then((response) => response.data)
+            .then(data => {
 
-                this.openModal('Usuário editado com sucesso!', '2.png', 
-                    `
-                    <p>O usuário foi editado com as seguintes informações:</p>
-                    <p>Usuário: <b>${userDTO.username}</b></p>
-                    <p>Empresa: <b>${(userDTO.empresa && userDTO.empresa.nome) ?? "Nenhuma"}</b></p>
-                    <p>Cargo: <b>${userDTO.role}</b></p>
-                    `,
-                    null
-                );
-                this.users = this.users.filter( u => u.id != userDTO.id);
+                service.one(data.id).then(response => response.data)
+                .then(data => {
 
-                this.users = [...this.users, userDTO];
+                    this.openModal('Usuário editado com sucesso!', '2.png', 
+                        `
+                        <p>O usuário foi editado com as seguintes informações:</p>
+                        <p>Usuário: <b>${data.username}</b></p>
+                        <p>Empresa: <b>${(data.empresa && data.empresa.nome) ?? "Nenhuma"}</b></p>
+                        <p>Cargo: <b>${data.role ? data.role[0].name : "Nenhum"}</b></p>
+                        `,
+                        null
+                    );
+                    this.users = this.users.filter( u => u.id != data.id);
 
-                this.$refs.tab_select.activateTab(0);
+                    this.users = [...this.users, data];
+
+                    this.$refs.tab_select.activateTab(0);
+                });
             });
         },
 
@@ -317,7 +307,7 @@ export default {
                 <p>O usuário com as seguintes informações será deletado ao clicar em confirmar:</p>
                 <p>Usuário: <b>${user.username}</b></p>
                 <p>Empresa: <b>${(user.empresa && user.empresa.nome) ?? "Nenhuma"}</b></p>
-                <p>Cargo: <b>${user.role}</b></p>
+                <p>Cargo: <b>${user.role ? user.role[0].name : "Nenhum"}</b></p>
                 `,
                 {
                     action: () => {
@@ -339,6 +329,12 @@ export default {
         },
         closeModal: function(){
             this.$emit('closeModal');
+        },
+        openToast: function(text, color, textColor){
+            this.$emit('openToast', text, color, textColor);
+        },
+        closeToast: function(){
+            this.$emit('closeToast');
         }
     
     },

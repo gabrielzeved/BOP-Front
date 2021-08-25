@@ -1,12 +1,12 @@
 <template>
-    <div :style="style" class="toast__wrapper">
+    <div :style="style" :class="`toast__wrapper ${show ? 'show' : 'hide'}`">
         {{ text }}
     </div>
 </template>
 
 <script>
 export default {
-    props: ['text', 'color', 'textColor'],
+    props: ['text', 'color', 'textColor', 'show'],
     computed: {
       style () {
         return `
@@ -32,6 +32,14 @@ export default {
         opacity: .85;
         width: 85%;
         text-align: center;
+        pointer-events: none;
+
+        transition: all 1s ease;
+        
+        &.hide{
+            opacity: 0;
+        }
+
     }
 
 </style>

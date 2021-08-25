@@ -15,9 +15,7 @@ class CompanyService{
     }
 
     all(){
-        return axios.get(this.apiURI + this.endPoint + '/')
-        .then(response => response.data)
-        .catch(error => console.error("Error on company service: " + error));
+        return axios.get(this.apiURI + this.endPoint + '/');
     }
 
     delete(id){

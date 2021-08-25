@@ -8,6 +8,10 @@ class UserService{
         this.endPoint = '/auth'
     }
 
+    one(id){
+        return axios.get(this.apiURI + this.endPoint + '/user/' + id);
+    }
+
     all(){
         return axios.get(this.apiURI + this.endPoint + '/user');
     }

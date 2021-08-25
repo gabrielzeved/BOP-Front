@@ -13,8 +13,20 @@
         :close="closeModal"
         :callback="modal.callback"
         />
-    <Toast text="Concluido com Sucesso"/>
-    <Home :openModal="openModal" :closeModal="closeModal" />
+    <Toast 
+      :text="toast.text"
+      :color="toast.color"
+      :textColor="toast.textColor"
+      :show="showToast"
+    />
+    
+    <Home
+      :openModal="openModal"
+      :closeModal="closeModal"
+      :openToast="openToast"
+      :closeToast="closeToast"
+    />
+  
   </div>
 
 </template>
@@ -35,7 +47,14 @@ export default {
           htmlString: "<p>Bundia</p>",
           callback: null
         },
-        showModal: false
+        showModal: false,
+        showToast: false,
+        toast:{
+          text: "Concluido",
+          color: "#008542",
+          textColor: "white"
+        },
+        toastTimeout: null
     }
   },
   methods:{
@@ -44,11 +63,29 @@ export default {
       this.modal.image = image;
       this.modal.htmlString = htmlString;
       this.modal.callback = callback
-      console.log(this.modal.callback);
       this.showModal = true;
     },
     closeModal: function(){
       this.showModal = false;
+    },
+    openToast: function(text, color, textColor){
+      this.toast.text = text;
+      if(color)
+        this.toast.color = color;
+      if(textColor)
+        this.toast.textColor = textColor;
+      this.showToast = true;
+
+      if(this.toastTimeout)
+        clearTimeout(this.toastTimeout)
+
+      this.toastTimeout = setTimeout(() => {
+        this.closeToast();
+      }, 5000)
+
+    },
+    closeToast: function(){
+      this.showToast = false;
     }
   }
 }
