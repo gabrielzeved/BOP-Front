@@ -1,7 +1,7 @@
 <template>
     <div class="tab-select">
         <template v-for="(tab, index) in tabs" :key="index">
-            <div v-if="tab.visible" v-on:click="activateTab(index); if(tab.callback) tab.callback()" v-bind:class="['tab', activeTab === index ? 'active' : '']">{{tab.name}}</div>
+            <div v-if="tab.visible" v-on:click="activateTab(index);" v-bind:class="['tab', activeTab === index ? 'active' : '']">{{tab.name}}</div>
         </template>
     </div>
 </template>
@@ -21,10 +21,12 @@ export default {
             this.tabs.map( (tab, index) => {
                 if(!tab.element)
                     return;
-                if(index !== id || !tab.visible)
+                if(index !== id || !tab.visible){
                     tab.element.style.display = 'none';
-                else
+                }else{
                     tab.element.style.display = '';
+                    if(tab.callback) tab.callback();
+                }
             });
 
         }
