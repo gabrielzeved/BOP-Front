@@ -19,11 +19,11 @@ class CompanyService{
     }
 
     delete(id){
-        return axios.delete(this.apiURI + this.endPoint + '/delete/' + id);
+        return axios.post(this.apiURI + this.endPoint + '/delete/' + id);
     }    
 
     update(id, data){
-        return axios.put(this.apiURI + this.endPoint + '/update/' + id, data);
+        return axios.post(this.apiURI + this.endPoint + '/update/' + id, data);
     }
 
     add(data){

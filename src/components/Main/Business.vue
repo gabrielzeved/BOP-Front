@@ -7,7 +7,7 @@
             <h1>Gerenciar Empresas</h1>
         </div>
 
-        <TabSelect :tabs="tabs"/>
+        <TabSelect :tabs="tabs" ref="tab_select"/>
 
         <div id="tab-value-0" class="business__list">
             
@@ -24,7 +24,8 @@
                     <label for="list-by">Listar por:</label>
                     <select id="list-by" name="list-by" >
                         <option value="" disabled selected>Select your option</option>
-                        <option value="hurr">Durr</option>
+                        <option value="name">Nome</option>
+                        <option value="cnpj">CNPJ</option>
                     </select>
                 </div>
 
@@ -32,7 +33,7 @@
                     <label for="filter-by">Filtrar por:</label>
                     <select id="filter-by" name="filter-by" >
                         <option value="" disabled selected>Select your option</option>
-                        <option value="hurr">Durr</option>
+                        <option value="name">Nome</option>
                     </select>
                 </div>
             </div>
@@ -54,8 +55,8 @@
                             {{ company.nome }}
                         </td>
                         <td align="center">{{ company.cnpj }}</td>
-                        <td align="center"><i class='bx bx-edit'></i></td>
-                        <td align="center"><i class='bx bx-no-entry'></i></td>
+                        <td align="center"><i class='bx bx-edit' v-on:click="changeToEdition(company.id)"></i></td>
+                        <td align="center" v-on:click="deleteCompany(company)" ><i class='bx bx-no-entry'></i></td>
                         <td align="center"><input type="checkbox"></td>
                     </tr>
                 </tbody>
@@ -64,16 +65,31 @@
         </div>
 
         <div id="tab-value-1" class="business__form">
-            <form>
+            <form id="form__1">
                 <h1>Entre com as informações necessárias para realizar o cadastro</h1>
             
-                <label for="business-name">Nome</label>
-                <input type="text" id="business-name" name="business-name" />
+                <label for="nome">Nome</label>
+                <input type="text" id="business-name" name="nome_empresa" />
             
-                <label for="business-cnpj">CNPJ</label>
-                <input type="text" id="business-cnpj" name="business-cnpj" />
+                <label for="cnpj">CNPJ</label>
+                <input type="text" id="business-cnpj" name="cnpj" />
 
-                <button>Cadastrar</button>
+               <button v-on:click.stop.prevent="registerCompany()">Cadastrar</button>
+
+            </form>
+        </div>
+
+        <div id="tab-value-2" class="business__form">
+            <form id="form__2">
+                <h1>Entre com as informações necessárias para editar o cadastro</h1>
+            
+                <label for="name">Nome</label>
+                <input type="text" id="business-name" name="nome_empresa" />
+            
+                <label for="cnpj">CNPJ</label>
+                <input type="text" id="business-cnpj" name="cnpj" />
+
+                <button v-on:click.stop.prevent="updateCompany()">Atualizar</button>
 
             </form>
         </div>
@@ -96,20 +112,38 @@ export default {
     data: function(){
         return{
             tabs: [],
-            companies: []
+            companies: [],
+            companyEditing: -1
         }
     },
     mounted: function(){
         this.resetTabs();
-        service.all().then(data => this.companies = data.objetos);
+        service.all().then(data =>this.companies = data);
     },
     methods: {
-        changeToEdition: function(){
+        changeToEdition: function(id){
+            const company = this.companies.find(company => company.id == id);
+
+            if(!company){
+                console.log("Usuario nao encontrado");
+                return;
+            }
+
+            this.companyEditing = id;
+
             this.tabs = [
                 {name: 'Visualizar',element: document.getElementById('tab-value-0'), visible: true, callback: this.resetTabs},
                 {name: 'Cadastro',  element: document.getElementById('tab-value-1'), visible: false},
                 {name: 'Editar',  element: document.getElementById('tab-value-2'), visible: true}
             ]
+
+             const form = document.getElementById(`form__2`);
+
+            //FILLING VALUE IN FORM
+            form.elements['nome_empresa'].value = company.nome;
+            form.elements['cnpj'].value = company.cnpj;
+
+            this.$nextTick(() => this.$refs.tab_select.activateTab(2));
         },
         resetTabs: function(){
             this.tabs = [
@@ -117,7 +151,109 @@ export default {
                 {name: 'Cadastro',  element: document.getElementById('tab-value-1'), visible: true},
                 {name: 'Editar',  element: document.getElementById('tab-value-2'), visible: false}
              ]
-        }
+        },
+        parseObjectFromForm: function(){
+            const tab_select = this.$refs.tab_select;
+            const form = document.getElementById(`form__${tab_select.activeTab}`);
+            const formData = new FormData(form);
+            let object = {};
+            for (var pair of formData.entries()) {
+                object[pair[0]] = pair[1];
+            }
+            return object;
+        },
+
+        registerCompany: function(){
+            const newCompany = this.parseObjectFromForm();
+            newCompany.nome = newCompany.nome_empresa;
+
+           if(!newCompany.nome_empresa){
+                console.error("Nome é obrigatório");
+                return;
+            }
+
+            if(!newCompany.cnpj){
+                console.log(newCompany)
+                console.error("CNPJ é obrigatório")
+                return;
+            } 
+
+            service.add(newCompany)
+            .then(() => {
+                this.openModal('empresa registrada com sucesso!', '2.png', 
+                    `
+                    <p>A empresa foi adicionada com as seguintes informações:</p>
+                    <p>Empresa: <b>${newCompany.nome_empresa}</b></p>
+                    <p>CNPJ: <b>${newCompany.cnpj}</b></p>
+                    `,
+                    null
+                );
+                this.companies = [...this.companies, newCompany]
+                this.$refs.tab_select.activateTab(0);
+            });
+        },
+
+        openModal: function(title, image, htmlString, callback){
+            this.$emit('openModal', title, image, htmlString, callback);
+        },
+        closeModal: function(){
+            this.$emit('closeModal');
+        },
+
+        updateCompany: function(){
+            const newCompany = this.parseObjectFromForm();
+            newCompany.nome = newCompany.nome_empresa;
+
+            if(!newCompany.nome_empresa){
+                console.error("Nome é obrigatório");
+                return;
+            }
+
+            if(!newCompany.cnpj){
+                console.error("CNPJ é obrigatório")
+                return;
+            } 
+
+            service.update(this.companyEditing, newCompany)
+            .then((response) => {
+                newCompany.id = response.data.id;
+                this.openModal('Empresa editada com sucesso!', '2.png', 
+                    `
+                    <p>A empresa foi editado com as seguintes informações:</p>
+                    <p>Nome: <b>${newCompany.nome_empresa}</b></p>
+                    <p>Cargo: <b>${newCompany.cnpj}</b></p>
+                    `,
+                    null
+                );
+                this.companies = this.companies.filter( c => c.id != newCompany.id);
+
+                this.companies = [...this.companies, newCompany];
+
+                this.$refs.tab_select.activateTab(0);
+            });
+        },
+
+        deleteCompany: function(company){
+
+            this.openModal('Deseja realmente deletar essa empresa?', '2.png', 
+                `
+                <p>A empresa com as seguintes informações será deletada ao clicar em confirmar:</p>
+                <p>Empresa: <b>${company.nome}</b></p>
+                <p>CNPJ: <b>${company.cnpj}</b></p>
+                `,
+                {
+                    action: () => {
+                        service.delete(company.id).then(() => {   
+                            this.companies = this.companies.filter( c => c.id != company.id);
+
+                        }).catch(error =>{
+                            console.log(error);
+                        })
+                    },
+                    text: "Confirmar"
+                }
+            );        
+        },
     }
 }
 </script>
