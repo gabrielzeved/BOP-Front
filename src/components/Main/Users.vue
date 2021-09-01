@@ -193,9 +193,14 @@ export default {
             //FILLING VALUE IN FORM
             form.elements['username'].value = user.username;
 
-            if(user.role)
-                form.elements['id_role'].value = user.role.id;
-            
+            if(user.role){
+                form.elements['id_role'].value = "" + user.role[0].id;
+            }
+
+            if(user.empresa){
+                form.elements['id_empresa'].value = "" + user.empresa.id;
+            }
+
             this.$nextTick(() => this.$refs.tab_select.activateTab(2));
         },
 
