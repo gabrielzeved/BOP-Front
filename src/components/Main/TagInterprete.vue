@@ -4,7 +4,7 @@
 
         <div class="tags__header">
             <img src="../../assets/2.png" />
-            <h1>Gerenciar Tags-RTO-Live</h1>
+            <h1>Gerenciar Tags-Interprete</h1>
         </div>
 
         <TabSelect :tabs="tabs" ref="tab_select"/>
@@ -40,21 +40,18 @@
             <table class="tags__table">
                 <thead>
                     <tr>
-                        <th align="center">Tag-RTO-Live</th>
                         <th align="center">Tag-Intérprete</th>
+                        <th align="center">Descrição</th>
                         <th align="center">Editar</th>
                         <th align="center">Deletar</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(tag, index) in tags" :key="index">
-                        <td align="center"> 
-                            {{ tag.nome }}
+                        <td align="center" class="tag_name"> 
+                            {{ tag.name }}
                         </td>
-                        <td align="center">
-                            {{ tag.tag_id ? tag.tag_id.name : "Nenhum" }}
-                            <div class="tag-description-hover" v-if="tag.tag_id">{{ tag.tag_id.descricao }}</div>    
-                        </td>
+                        <td align="center">{{ tag ? tag.descricao : "Nenhum" }}</td>
                         <td align="center"><i class='bx bx-edit' v-on:click="changeToEdition(tag.id)"></i></td>
                         <td align="center"><i class='bx bx-no-entry' v-on:click="deleteTag(tag)"></i></td>
                     </tr>
@@ -65,24 +62,13 @@
 
         <div id="tab-value-1" class="tags__form">
             <form id="form__1">
-                <h1>Entre com as informações necessárias para adicionar associação ao sistema</h1>
+                <h1>Entre com as informações necessárias para adicionar uma tag interprete ao sistema</h1>
 
                 <label for="tags-name">Nome</label>
-                <input type="text" id="tags-name" name="nome_tagrto" />
-                
-                <label for="tags-company">Empresa</label>
+                <input type="text" id="tags-name" name="nome_tagpadrao" />
 
-                <select id="tags-company" name="id_empresa">
-                    <option value="" disabled selected>Select your option</option>
-                    <option v-for="(company, index) in companies" :key="index" :value="company.id">{{ company.nome }}</option>
-                </select>
-
-                <label for="tags-tagpadrao">Tag Intérprete</label>
-
-                <select id="tags-tagpadrao" name="id_tagpadrao">
-                    <option value="" disabled selected>Select your option</option>
-                    <option v-for="(tag, index) in tags_default" :key="index" :value="tag.id">{{ tag.name }}</option>
-                </select>
+                <label for="tags-desc">Descrição</label>
+                <input type="text" id="tags-desc" name="descricao" />
 
                 <button v-on:click.stop.prevent="registerTag()">Cadastrar</button>
 
@@ -91,24 +77,13 @@
 
         <div id="tab-value-2" class="tags__form">
             <form id="form__2">
-                <h1>Entre com as informações necessárias para editar associação no sistema</h1>
+                <h1>Entre com as informações necessárias para editar uma tag interprete no sistema</h1>
 
                 <label for="tags-name">Nome</label>
-                <input type="text" id="tags-name" name="nome_tagrto" />
-                
-                <label for="tags-company">Empresa</label>
+                <input type="text" id="tags-name" name="nome_tagpadrao" />
 
-                <select id="tags-company" name="id_empresa">
-                    <option value="" disabled selected>Select your option</option>
-                    <option v-for="(company, index) in companies" :key="index" :value="company.id">{{ company.nome }}</option>
-                </select>
-
-                <label for="tags-tagpadrao">Tag Intérprete</label>
-
-                <select id="tags-tagpadrao" name="id_tagpadrao">
-                    <option value="" disabled selected>Select your option</option>
-                    <option v-for="(tag, index) in tags_default" :key="index" :value="tag.id">{{ tag.name }}</option>
-                </select>
+                <label for="tags-desc">Descrição</label>
+                <input type="text" id="tags-desc" name="descricao" />
 
                 <button v-on:click.stop.prevent="updateTag()">Concluir</button>
 
@@ -120,15 +95,9 @@
 
 <script>
 import TabSelect from '../TabSelect';
-import TagsService from '../../services/tags.service'
 import TagsDefaultService from '../../services/tags_default.service'
-import CompanyService from '../../services/company.service';
 
-
-const service = new TagsService("http://localhost:5001");
-const tagsDefaultService = new TagsDefaultService('http://localhost:5001');
-const companiesService = new CompanyService('http://localhost:5001');
-
+const service = new TagsDefaultService("http://localhost:5001");
 //const filtersAvaiable = ['name', 'role', 'company'];
 
 export default {
@@ -139,8 +108,6 @@ export default {
         return{
             tabs: [],
             tags: [],
-            companies: [],
-            tags_default: [],
             searchInputValue: "",
             tagEditing: -1
         }
@@ -152,47 +119,34 @@ export default {
             this.tags = [...tags]
         });
 
-        tagsDefaultService.all().then(data => {
-            this.tags_default = [...data]
-        });
-
-        companiesService.all().then(response => response.data)
-        .then(data => {
-            this.companies = [...data];
-        })
-
     },
     methods: {
         changeToEdition: function(id){
+
             const tag = this.tags.find(tag => tag.id == id);
 
-            if(!tag)
+            if(!tag){
+                console.log("Tag nao encontrada");
                 return;
+            }
 
-            this.tagEditing = id
+            this.tagEditing = id;
 
             this.tabs = [
-                {name: 'Associações',element: document.getElementById('tab-value-0'), visible: true, callback: this.resetTabs},
+                {name: 'Tags',element: document.getElementById('tab-value-0'), visible: true, callback: this.resetTabs},
                 {name: 'Adicionar',  element: document.getElementById('tab-value-1'), visible: false},
                 {name: 'Editar',  element: document.getElementById('tab-value-2'), visible: true}
             ];
 
             const form = document.getElementById(`form__2`);
-            form.elements['nome_tagrto'].value = tag.nome;
-
-            if(tag.tag_id){
-                form.elements['id_tagpadrao'].value = "" + tag.tag_id.id;
-            }
-
-            if(tag.empresa){
-                form.elements['id_empresa'].value = "" + tag.empresa.id;
-            }
+            form.elements['nome_tagpadrao'].value = tag.name;
+            form.elements['descricao'].value = tag.descricao;
 
             this.$nextTick(() => this.$refs.tab_select.activateTab(2));
         },
         resetTabs: function(){
             this.tabs = [
-                {name: 'Associações',element: document.getElementById('tab-value-0'), visible: true, callback: this.resetTabs},
+                {name: 'Tags',element: document.getElementById('tab-value-0'), visible: true, callback: this.resetTabs},
                 {name: 'Adicionar',  element: document.getElementById('tab-value-1'), visible: true},
                 {name: 'Editar',  element: document.getElementById('tab-value-2'), visible: false}
              ]
@@ -208,77 +162,31 @@ export default {
             return object;
         },
         
+        
+        
         registerTag: function(){
             const newTag = this.parseObjectFromForm();
 
-            if(!newTag.nome_tagrto){
+            if(!newTag.nome_tagpadrao){
                 this.openToast('Nome da tag é obrigatório', '#f44336', 'white')
                 return;
             }
 
-            if(!newTag.id_tagpadrao){
-                this.openToast('Tag Intérprete é obrigatório!', '#f44336', 'white')
+            if(!newTag.descricao){
+                this.openToast('Descrição da Tag é obrigatório!', '#f44336', 'white')
                 return;
             }      
 
-            if(!newTag.id_empresa){
-                this.openToast('Empresa é obrigatório!', '#f44336', 'white')
-                return;
-            } 
-
-            service.addAdmin(newTag).then((response) => {
+            service.add(newTag).then((response) => {
                 let responseTag = response.data;
                 this.openModal('Tag associada com sucesso!', '2.png', 
                     `
                     <p>A Tag foi associada seguindo as informações:</p>
-                    <p>Nome: <b>${responseTag.nome}</b></p>
-                    <p>Tag Intérprete: <b>${responseTag.tag_id.name}</b></p>
-                    <p>Empresa: <b>${responseTag.empresa.nome}</b></p>
+                    <p>Nome: <b>${responseTag.name}</b></p>
+                    <p>Descrição: <b>${responseTag.descricao}</b></p>
                     `
                 );
                 this.tags = [...this.tags, responseTag]
-                this.$refs.tab_select.activateTab(0);
-            });
-        },
-
-        updateTag : function(){
-            const newTag = this.parseObjectFromForm();
-
-            if(!newTag.nome_tagrto){
-                this.openToast('Nome da tag é obrigatório', '#f44336', 'white')
-                return;
-            }
-
-            if(!newTag.id_tagpadrao){
-                this.openToast('Tag Intérprete é obrigatório!', '#f44336', 'white')
-                return;
-            }      
-
-            if(!newTag.id_empresa){
-                this.openToast('Empresa é obrigatório!', '#f44336', 'white')
-                return;
-            }   
-
-            service.update(this.tagEditing, newTag)
-            .then((response) => response.data)
-            .then(data => {
-
-                const responseTag = data;
-
-                this.openModal('Tag RTO editada com sucesso!', '2.png', 
-                    `
-                    <p>A tag RTO foi editada com as seguintes informações:</p>
-                    <p>Nome: <b>${responseTag.nome}</b></p>
-                    <p>Tag Intérprete: <b>${responseTag.tag_id.name}</b></p>
-                    <p>Empresa: <b>${responseTag.empresa.nome}</b></p>
-                    `,
-                    null
-                );
-
-                this.tags = this.tags.filter( u => u.id != responseTag.id);
-
-                this.tags = [...this.tags, responseTag];
-
                 this.$refs.tab_select.activateTab(0);
             });
         },
@@ -287,9 +195,8 @@ export default {
             this.openModal('Deseja realmente deletar essa tag?', '2.png', 
                 `
                 <p>A tag intérprete com as seguintes informações será deletada ao clicar em confirmar:</p>
-                <p>Nome: <b>${tag.nome}</b></p>
-                <p>Tag Intérprete: <b>${tag.tag_id.name}</b></p>
-                <p>Empresa: <b>${tag.empresa.nome}</b></p>
+                <p>Nome: <b>${tag.name}</b></p>
+                <p>Descrição: <b>${ tag.descricao ?? "Nenhuma"}</b></p>
                 `,
                 {
                     action: () => {
@@ -305,6 +212,42 @@ export default {
             );
         },
 
+        updateTag : function(){
+            const newTag = this.parseObjectFromForm();
+
+            if(!newTag.nome_tagpadrao){
+                this.openToast('Nome da tag é obrigatório', '#f44336', 'white')
+                return;
+            }
+
+            if(!newTag.descricao){
+                this.openToast('Descrição da Tag é obrigatório!', '#f44336', 'white')
+                return;
+            }   
+
+            service.update(this.tagEditing, newTag)
+            .then((response) => response.data)
+            .then(data => {
+
+                const tagResponse = data;
+
+                this.openModal('Tag Intérprete editada com sucesso!', '2.png', 
+                    `
+                    <p>A tag intérprete foi editada com as seguintes informações:</p>
+                    <p>Nome: <b>${tagResponse.name}</b></p>
+                    <p>Descrição: <b>${(tagResponse.descricao) ?? "Nenhuma"}</b></p>
+                    `,
+                    null
+                );
+
+                this.tags = this.tags.filter( u => u.id != tagResponse.id);
+
+                this.tags = [...this.tags, tagResponse];
+
+                this.$refs.tab_select.activateTab(0);
+            });
+        },
+
         openModal: function(title, image, htmlString, callback){
             this.$emit('openModal', title, image, htmlString, callback);
         },
@@ -317,12 +260,12 @@ export default {
         closeToast: function(){
             this.$emit('closeToast');
         }
+    
     }
 }
 </script>
 
 <style lang="scss" scoped>
-
     .tags{
         margin: 10px 40px;
         height: 100%;
@@ -457,48 +400,6 @@ export default {
         }
 
         td{
-            position: relative;
-
-            .tag-description-hover{
-                position: absolute;
-                opacity: 0;
-                width: max-content;
-                top: 50%;
-                left: -50%;
-                transform: translate(0, -50%);
-                
-                max-width: 250px;
-                padding: .5em;
-                color: white;
-                background-color: #222;
-                z-index: 10;
-                border-radius: 5px;
-                transition: all 0.2s ease;
-                pointer-events: none;
-
-                &::after{
-                    content: '';
-                    width: 0; 
-                    height: 0; 
-                    border-top: 10px solid transparent;
-                    border-bottom: 10px solid transparent;
-                    
-                    border-left: 10px solid #222;
-                    position: absolute;
-                    left: 99%;
-                    top: 50%;
-                    transform: translateY(-50%);
-                }
-
-            }
-
-            &:hover{
-                .tag-description-hover{
-                    opacity: 0.8;
-                    transition: all 0.2s ease;
-                }
-            }
-
             i{
                 color: #008542;
                 font-size: 20px;

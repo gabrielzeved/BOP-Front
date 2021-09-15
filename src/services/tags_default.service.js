@@ -10,7 +10,7 @@ class TagsDefaultService{
 
     all(){
         return axios.get(this.apiURI + this.endPoint + '/')
-        .then(response => response.data.objetos)
+        .then(response => response.data)
         .catch(error => console.error("Error on tags default service: " + error));
     }
 
@@ -19,7 +19,11 @@ class TagsDefaultService{
     }    
 
     update(id, data){
-        return axios.put(this.apiURI + this.endPoint + '/update/' + id, data);
+        return axios.post(this.apiURI + this.endPoint + '/update/' + id, data, { 
+            headers: {
+                'Content-Type' : 'application/json'
+            }    
+        });
     }
 
     add(data){

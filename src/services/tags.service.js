@@ -10,7 +10,7 @@ class TagsService{
 
     all(){
         return axios.get(this.apiURI + this.endPoint + '/')
-        .then(response => response.data.objetos)
+        .then(response => response.data)
         .catch(error => console.error("Error on tags service: " + error));
     }
 
@@ -19,11 +19,11 @@ class TagsService{
     }    
 
     update(id, data){
-        return axios.put(this.apiURI + this.endPoint + '/update/' + id, data);
+        return axios.post(this.apiURI + this.endPoint + '/update/' + id, data);
     }
 
-    add(data){
-        return axios.post(this.apiURI + this.endPoint + '/add', data, { 
+    addAdmin(data){
+        return axios.post(this.apiURI + this.endPoint + '/admin/add', data, { 
             headers: {
                 'Content-Type' : 'application/json'
             }    

@@ -45,7 +45,6 @@
                         <th align="center">CNPJ</th>
                         <th align="center">Editar</th>
                         <th align="center">Deletar</th>
-                        <th align="center">Selecionar</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -57,7 +56,6 @@
                         <td align="center">{{ company.cnpj }}</td>
                         <td align="center"><i class='bx bx-edit' v-on:click="changeToEdition(company.id)"></i></td>
                         <td align="center" v-on:click="deleteCompany(company)" ><i class='bx bx-no-entry'></i></td>
-                        <td align="center"><input type="checkbox"></td>
                     </tr>
                 </tbody>
             </table>

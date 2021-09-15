@@ -3,6 +3,7 @@ import Home from '../components/main/Home.vue'
 import Business from '../components/main/Business.vue'
 import Users from '../components/main/Users.vue'
 import TagRTO from '../components/main/TagRTO.vue'
+import TagInterprete from '../components/main/TagInterprete.vue'
 
 const routes = [
   {
@@ -19,10 +20,16 @@ const routes = [
     path: '/usuarios',
     name: 'Users',
     component: Users
-  },{
+  },
+  {
     path: '/tagrto',
     name: 'TagRTO',
     component: TagRTO
+  },
+  {
+    path: '/tagpadrao',
+    name: 'TagPadrao',
+    component: TagInterprete
   }
 ]
 

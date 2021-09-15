@@ -28,12 +28,15 @@
                 </li>
             </router-link>
 
-            <li>
-                <span>
-                    <i class='bx bx-spreadsheet'></i>
-                    Tags - Intérprete
-                </span>
-            </li>
+            <router-link to="/tagpadrao">
+                <li>
+                    <span>
+                        <i class='bx bx-spreadsheet'></i>
+                        Tags - Intérprete
+                    </span>
+                </li>
+            </router-link>
+
             <router-link to="/tagrto">
                 <li>
                     <span>

@@ -3,6 +3,9 @@
         <div class="layout__header__logo">
             <img src="../assets/header-logo.png" />
             <img class="logo-image" src="../assets/header.png" />
+            <div class="layout__header__title">
+                Sistema Intérprete
+            </div>
         </div>
         <div class="layout__header__login">
             <span>Você está logado como: Administrador</span>
@@ -23,6 +26,18 @@ export default {
         justify-content: space-between;
         position:relative;
         z-index: 2;
+
+        &__title{
+            position: absolute;
+            right: 10%;
+            color: white;
+            font-size: 2rem;
+            line-height: 64px;
+            margin: 0;
+            padding: 0;
+            text-shadow: 0 0 .3em rgba(0,0,0,0.5);
+        }
+
         &__logo{
             padding: 0 0px 4px 16px;
             height: 68px;
